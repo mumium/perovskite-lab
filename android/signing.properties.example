@@ -1,0 +1,5 @@
+# Copy to signing.properties locally. Never commit real signing credentials.
+storeFile=/absolute/path/to/crystallab-release.jks
+storePassword=YOUR_PRIVATE_PASSWORD
+keyAlias=YOUR_KEY_ALIAS
+keyPassword=YOUR_PRIVATE_PASSWORD

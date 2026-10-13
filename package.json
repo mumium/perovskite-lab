@@ -1,0 +1,14 @@
+{
+  "name": "crystallab-notebook",
+  "version": "0.3.1",
+  "private": true,
+  "description": "晶研实验簿：钙钛矿小面积电池实验记录",
+  "scripts": {
+    "test": "node test.cjs",
+    "test:ui": "node test-presets.cjs",
+    "test:sync": "python test_sync.py"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

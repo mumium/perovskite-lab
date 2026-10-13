@@ -1,0 +1,24 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const nodes=new Map();const node=s=>{if(!nodes.has(s))nodes.set(s,{textContent:'',innerHTML:'',style:{},dataset:{},classList:{toggle(){}},value:''});return nodes.get(s)};
+let downloads=[];let context={console,Map,Set,Date,Number,String,Array,JSON,Math,URL,Blob,setTimeout(){},crypto:require('crypto').webcrypto,localStorage:{getItem(){return null},setItem(){}},document:{querySelector:node,querySelectorAll(){return []}},window:{Android:{saveFile(...x){downloads.push(x)}}}};
+vm.createContext(context);vm.runInContext(fs.readFileSync(__dirname+'/web/presets.js','utf8'),context);vm.runInContext(fs.readFileSync(__dirname+'/web/app.js','utf8'),context);
+vm.runInContext(`
+if(calc({voc:1.1,jsc:24,ff:80,pin:100})!==21.12) throw Error('PCE');
+db={batches:[{id:'b',name:'测试批次'}],devices:[{id:'d',batchId:'b',name:'器件1',variable:'退火 100°C',results:[{id:'r',pixel:'P1',voc:1.1,jsc:24,ff:80,pin:100,pce:'',area:0.1}]}]};
+validate(db);exportCSV();
+if(testLabel(db.devices[0].results[0])!=='P1')throw Error('legacy test name lost');
+if(testLabel({testLabel:'复测',pixel:'P1'})!=='复测'||testLabel({testLabel:'',pixel:'P1'})!=='')throw Error('test name precedence');
+if(fieldsResult.some(f=>f[0]==='pixel')||fieldsResult.find(f=>f[0]==='testLabel')[3])throw Error('test name must be optional');
+let failed=false;try{validate({batches:[],devices:[{id:'x',batchId:'missing',results:[]}]})}catch(e){failed=true}if(!failed)throw Error('invalid import accepted');
+merge({batches:[{id:'b2'}],devices:[]});if(db.batches.length!==2)throw Error('merge lost record');
+if(esc('<script>')!=='&lt;script&gt;')throw Error('escaping');
+view='compare';render();if(!document.querySelector('#app').innerHTML.includes('21.12'))throw Error('comparison missing result');
+`,context);
+assert(downloads[0][1].includes('21.12'));assert(downloads[0][1].includes('退火 100°C'));assert(downloads[0][1].charCodeAt(0)===0xfeff);
+assert(downloads[0][1].includes('测试名称'));assert(downloads[0][1].includes('P1'));assert(!downloads[0][1].includes('像素'));
+console.log('PASS: PCE, linked CSV export, import validation, merge, escaping, comparison rendering');
+context.AbortController=AbortController;
+let cleared=false;
+context.clearTimeout=()=>{cleared=true};
+context.fetch=async(url,options)=>{assert(options.signal instanceof AbortSignal);return {ok:true}};
+vm.runInContext("fetchWithTimeout('http://test',{})",context).then(r=>{assert(r.ok&&cleared);console.log('PASS: WebView-compatible request timeout cleanup')}).catch(e=>{console.error(e);process.exitCode=1});

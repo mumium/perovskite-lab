@@ -1,0 +1,29 @@
+plugins { id 'com.android.application' }
+def signingFile = rootProject.file('signing.properties')
+def signingValues = new Properties()
+if (signingFile.exists()) signingFile.withInputStream { signingValues.load(it) }
+android {
+    namespace 'cn.pvlab.notebook'
+    compileSdk 35
+    buildToolsVersion '35.0.0'
+    defaultConfig {
+        applicationId 'cn.pvlab.notebook'
+        minSdk 29
+        targetSdk 35
+        versionCode 8
+        versionName '0.3.1'
+    }
+    signingConfigs {
+        if (signingFile.exists()) {
+            release {
+                storeFile file(signingValues['storeFile'])
+                storePassword signingValues['storePassword']
+                keyAlias signingValues['keyAlias']
+                keyPassword signingValues['keyPassword']
+            }
+        }
+    }
+    buildTypes { release { if (signingFile.exists()) signingConfig signingConfigs.release } }
+}
+tasks.register('syncWeb', Copy) { from '../../web'; into 'src/main/assets' }
+tasks.named('preBuild').configure { dependsOn 'syncWeb' }
