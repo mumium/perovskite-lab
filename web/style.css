@@ -43,3 +43,6 @@ input,select,textarea{width:100%;min-width:0;max-width:100%;font-size:16px;color
 .preset-extra{display:grid;grid-template-columns:1fr;gap:10px;padding:0 0 4px}.preset-extra button{font-size:14px;min-height:48px;line-height:1.5;padding:11px 12px;white-space:normal;box-shadow:none}
 @media(min-width:761px){.preset-sections{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.preset-extra{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:350px){.preset-content{padding:0 12px 12px}.preset-block{padding:14px 12px}.prefill-hint,.preset-tools>summary{padding:13px 14px}}
+
+/* Designer signature beneath the application title. */
+.brand small.brand-signature{font-size:11px;line-height:1.2;letter-spacing:.8px;color:#6d7790;font-weight:600}@media(max-width:760px){.brand small.brand-signature{font-size:10px;letter-spacing:.6px}}

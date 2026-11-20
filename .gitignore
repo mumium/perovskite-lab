@@ -1,6 +1,7 @@
 .pairing-key
 lab-data*.json
 lab-data.tmp
+CrystalLab-Data/
 __pycache__/
 android/.gradle/
 android/local.properties

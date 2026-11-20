@@ -1,14 +1,40 @@
 {
   "name": "crystallab-notebook",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": true,
   "description": "晶研实验簿：钙钛矿小面积电池实验记录",
+  "main": "desktop/main.cjs",
   "scripts": {
     "test": "node test.cjs",
     "test:ui": "node test-presets.cjs",
-    "test:sync": "python test_sync.py"
+    "test:sync": "python test_sync.py",
+    "desktop": "electron .",
+    "build:desktop": "electron-builder --win portable --x64 --publish never",
+    "build:desktop:folder": "electron-builder --win zip --x64 --publish never --config.directories.output=release/windows-folder"
   },
   "devDependencies": {
+    "electron": "45.4.1",
+    "electron-builder": "26.18.0",
     "playwright": "1.62.1"
+  },
+  "build": {
+    "appId": "cn.pvlab.notebook.desktop",
+    "productName": "晶研实验簿",
+    "artifactName": "CrystalLab-PC-Offline-Folder-${version}-${arch}.${ext}",
+    "directories": {
+      "output": "release/windows-portable"
+    },
+    "files": [
+      "desktop/main.cjs",
+      "desktop/icon.ico",
+      "web/**/*"
+    ],
+    "win": {
+      "icon": "desktop/icon.ico"
+    },
+    "portable": {
+      "artifactName": "CrystalLab-PC-Offline-${version}-${arch}.${ext}",
+      "requestExecutionLevel": "user"
+    }
   }
 }

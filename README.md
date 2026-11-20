@@ -1,8 +1,8 @@
 # 晶研实验簿
 
-用于钙钛矿小面积电池制备的实验记录工具。支持 Android 离线记录，配套电脑端可通过浏览器查看、编辑，并在可信局域网内手动同步。
+用于钙钛矿小面积电池制备的实验记录工具。支持 Android 和 Windows 离线记录，也可在可信局域网内通过配套程序手动同步。
 
-当前版本：**0.3.1**。安装包见 [GitHub Releases](https://github.com/mumium/perovskite-lab/releases)。
+[下载 Windows 离线版 0.3.2](https://github.com/mumium/perovskite-lab/releases/tag/v0.3.2-windows) · [下载 Android 和局域网同步版 0.3.1](https://github.com/mumium/perovskite-lab/releases/tag/v0.3.1)
 
 ## 功能
 
@@ -21,7 +21,11 @@
 
 **安卓手机**：下载安装 `CrystalLab-0.3.1.apk`，支持 Android 10 及以上。升级时直接覆盖安装，不要卸载或清除数据。相同包名和签名才能保留原记录。
 
-**Windows 电脑**：下载并解压完整套装，运行 `电脑端/CrystalLab-PC-0.3.1.exe`。程序会打开浏览器；保持程序窗口运行即可。更新电脑端时，在原目录替换 EXE，以沿用目录内的服务端数据与配对密钥。
+**Windows 离线文件夹版（x64）**：将 `CrystalLab-PC-Offline-Folder-0.3.2-x64.zip` 完整解压到有写入权限的文件夹，双击其中的 `晶研实验簿.exe`。运行组件随文件夹提供，启动时可直接加载。移动程序时请复制整个文件夹。从单文件版迁移时，先关闭程序，再把旧版的 `CrystalLab-Data` 复制到新版 EXE 旁。如果新版已有记录，可通过 JSON 导入合并。
+
+**Windows 离线便携版（x64）**：把 `CrystalLab-PC-Offline-0.3.2-x64.exe` 复制到有写入权限的文件夹，双击打开。程序自带窗口，无需安装、联网或管理员权限。首次打开会在 EXE 旁创建 `CrystalLab-Data`，实验记录和模板自动保存在其中。关闭程序后，可把 EXE 和数据文件夹一起复制到另一台电脑。也可以用“数据与备份”中的 JSON 功能迁移安卓或旧电脑端的记录。公司若要求应用白名单，请由 IT 审核此未签名的 EXE。
+
+**Windows 局域网同步版**：解压 0.3.1 完整套装，运行 `电脑端/CrystalLab-PC-0.3.1.exe`。程序会打开浏览器，保持程序窗口运行即可。更新时可在原目录替换 EXE，以沿用目录内的服务端数据与配对密钥。
 
 **从源码运行电脑端**：安装 Python 3，在项目根目录执行：
 
@@ -46,7 +50,7 @@ FF 使用百分数，例如输入 `80` 表示 80%。Voc 单位为 V，Jsc 为 mA
 
 ## 手机与电脑同步
 
-两端连接同一可信 Wi-Fi。启动电脑端后，在两端“数据与同步”中填写电脑地址（如 `http://192.168.1.10:8765`）与电脑窗口显示的配对密钥，并分别点击同步。电脑浏览器记录不会自动写进服务端。
+使用 Windows 局域网同步版。两端连接同一可信 Wi-Fi，在“数据与同步”中填写电脑地址（如 `http://192.168.1.10:8765`）与电脑窗口显示的配对密钥，并分别点击同步。电脑浏览器记录不会自动写进服务端。离线便携版可通过 JSON 文件手动交换记录和模板。
 
 - 按记录 ID 合并，同 ID 的整条记录以本次提交端覆盖服务端。编辑前先同步，避免同时修改同一器件。
 - 记录与模板的删除暂不传播，需要在另一端单独删除。
@@ -74,7 +78,17 @@ sh gradlew assembleDebug
 
 ## 开发与检查
 
-应用前端为原生 HTML/CSS/JavaScript，电脑服务只使用 Python 标准库。运行应用无需安装 Node.js；浏览器自动化测试才需要 Playwright。
+构建 Windows x64 离线便携版需要 Windows、Node.js 24 和 pnpm。首次构建会联网下载依赖及打包工具。
+
+```sh
+pnpm install --frozen-lockfile
+pnpm run build:desktop
+pnpm run build:desktop:folder
+```
+
+单文件 EXE 输出到 `release/windows-portable/`。文件夹版及 ZIP 输出到 `release/windows-folder/`。用 `pnpm run desktop` 可从源码启动桌面窗口，开发数据保存在 `.build-tools/desktop-profile/`。
+
+应用前端为原生 HTML/CSS/JavaScript，局域网同步服务使用 Python 标准库，Windows 离线版内置 Electron。浏览器自动化测试使用 Playwright。
 
 ```sh
 node --check web/app.js
@@ -94,7 +108,7 @@ Android 发布包已通过构建、签名检查和浏览器尺寸流程检查。
 
 ## 数据与文件
 
-- 本地记录保存在 WebView / 浏览器存储中。卸载、清除应用数据或浏览器站点数据会丢失记录，请先备份。
+- 手机端与浏览器端的本地记录保存在 WebView 或浏览器存储中。离线便携版的本地记录保存在 EXE 旁的 `CrystalLab-Data`。清除相应数据前请先导出 JSON 备份。
 - 服务端保存 `lab-data.json`，上次版本为 `lab-data.previous.json`，配对密钥为 `.pairing-key`。这些文件及实验导出文件应留在自己的设备上。
 - 原始 J–V、EQE、XRD 等文件路径可写入备注，附件本体需要另外保留。
 - 当前没有云端账号、附件上传、拍照、曲线解析或多人权限功能；工艺字段仅用于记录，不是制备配方建议。
